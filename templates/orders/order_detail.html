@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ order.id }} | NEXORA{% endblock %}
+
+{% block content %}
+<div class="container fade-in">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <div class="card glass" style="margin-bottom: 2rem; border-left: 4px solid {% if order.status == 'cancelled' %}var(--danger){% else %}var(--success){% endif %};">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                <div>
+                    <h2 class="gradient-text">{% if order.status == 'cancelled' %}Order Cancelled{% else %}Order Confirmed{% endif %}</h2>
+                    <span style="font-size: 0.9rem; color: var(--text-muted);">#ORD-{{ order.id }}</span>
+                </div>
+                
+                {% if order.status == 'cancelled' %}
+                <span style="background: rgba(239, 68, 68, 0.2); color: var(--danger); padding: 0.5rem 1rem; border-radius: 8px; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.3);">
+                    <i class="fas fa-ban"></i> CANCELLED
+                </span>
+                {% elif order.can_cancel %}
+                <form action="{% url 'cancel_order' order.id %}" method="POST" id="cancel-form" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="button" onclick="confirmCancel()" class="btn btn-secondary" style="border-color: rgba(239, 68, 68, 0.3); color: var(--danger); font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 0.2rem;">
+                        <span style="font-weight: 800;"><i class="fas fa-times-circle"></i> Cancel Order</span>
+                        <span id="cancel-timer" style="font-size: 0.65rem; color: var(--text-muted); font-family: monospace;">Calculating...</span>
+                    </button>
+                    
+                    <script>
+                        // Timer logic
+                        const deadlineStr = "{{ order.cancel_deadline|date:'c' }}"; 
+                        const deadline = new Date(deadlineStr).getTime();
+                        
+                        function updateTimer() {
+                            const now = new Date().getTime();
+                            const distance = deadline - now;
+                            
+                            if (distance < 0) {
+                                document.getElementById("cancel-form").style.display = "none";
+                                return;
+                            }
+                            
+                            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                            
+                            document.getElementById("cancel-timer").innerText = 
+                                `Ends in ${hours}h ${minutes}m ${seconds}s`;
+                        }
+                        
+                        setInterval(updateTimer, 1000);
+                        updateTimer(); // Initial call
+                        
+                        function confirmCancel() {
+                            if(confirm("Are you sure you want to cancel this order? This action cannot be undone.")) {
+                                document.getElementById("cancel-form").submit();
+                            }
+                        }
+                    </script>
+                </form>
+                {% endif %}
+            </div>
+            
+            {% if order.status == 'cancelled' %}
+            <p style="color: var(--text-muted); margin-bottom: 0;">This order was cancelled. Any specific physical allocations have been returned to stock.</p>
+            {% else %}
+            <p style="color: var(--text-muted); margin-bottom: 0;">Thank you for your order, {{ user.username }}. Your payment has been processed.</p>
+            {% endif %}
+        </div>
+
+        {% if tracking %}
+        <div class="card glass" style="margin-bottom: 2rem; border-top: 2px solid var(--secondary);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="margin: 0;"><i class="fas fa-truck-fast"></i> ShipRocket Tracking</h3>
+                {% if order.is_delivered %}
+                <span style="background: var(--success); color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: 800;">
+                    DELIVERED
+                </span>
+                {% else %}
+                <span style="background: var(--secondary); color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: 800;">
+                    IN TRANSIT
+                </span>
+                {% endif %}
+            </div>
+
+            <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <div style="font-size: 0.9rem; color: var(--text-dim);">Current Location: <span
+                            style="color: var(--text-main); font-weight: 700;">{{ tracking.current_location }}</span></div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">AWB: {{ order.shiprocket_awb_code }}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.8rem; color: var(--text-dim);">Expected Arrival</div>
+                    <div style="font-weight: 800; color: var(--primary);">{{ order.expected_delivery_date|date:"D, d M Y" }}</div>
+                </div>
+            </div>
+
+            <div style="border-left: 2px solid var(--glass-border); padding-left: 1.5rem; margin-bottom: 1.5rem;">
+                {% for event in tracking.history %}
+                <div style="position: relative; margin-bottom: 1rem;">
+                    <div
+                        style="position: absolute; left: -1.9rem; top: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--secondary);">
+                    </div>
+                    <div style="font-weight: 700; font-size: 0.9rem;">{{ event.status }}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-dim);">
+                        {{ event.location }} — <span style="font-weight: 600; color: var(--text);">{{ event.date|date:"d M Y, h:i A" }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if tracking.tracking_url %}
+            <a href="{{ tracking.tracking_url }}" target="_blank" class="btn btn-primary"
+                style="width: 100%; justify-content: center; padding: 0.8rem;">
+                View Live Tracking on ShipRocket <i class="fas fa-external-link-alt"></i>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+            <div>
+                <h3 style="margin-bottom: 1.5rem;">Order Items</h3>
+                {% for item in items %}
+                <div class="card glass" style="padding: 1.5rem; display: flex; gap: 1.5rem; margin-bottom: 1rem;">
+                    <div
+                        style="width: 80px; height: 80px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-box" style="font-size: 1.5rem; color: var(--primary);"></i>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem;">{{ item.product.title }}</h4>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <span style="font-weight: 700;">₹{{ item.price }}</span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Qty: {{ item.quantity }}</span>
+                        </div>
+
+                        {% if item.fulfillment_type == 'digital' %}
+                        <div style="margin-top: 1rem;">
+                            <a href="{% url 'download_file' item.product.id %}" class="btn btn-primary"
+                                style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+                                <i class="fas fa-download"></i> Download Item
+                            </a>
+                            <a href="{% url 'add_review' item.product.id %}" class="btn btn-secondary"
+                                style="padding: 0.5rem 1rem; font-size: 0.8rem; margin-top: 0.5rem; display: block;">
+                                <i class="fas fa-star"></i> Leave Review
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div>
+                <h3 style="margin-bottom: 1.5rem;">Summary</h3>
+                <div class="card glass" style="margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <span>Subtotal</span>
+                        <span>₹{{ order.total_amount }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <span>Shipping</span>
+                        <span style="color: var(--success);">FREE</span>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--glass-border); font-weight: 700;">
+                        <span>Total</span>
+                        <span class="gradient-text">₹{{ order.total_amount }}</span>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 1.5rem;">Shipping Address</h3>
+                <div class="card glass" style="margin-bottom: 2rem;">
+                    {% if order.shipping_address %}
+                    <div style="font-weight: 800; margin-bottom: 0.5rem;">{{ order.shipping_address.full_name }}</div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+                        {{ order.shipping_address.street_address }}<br>
+                        {{ order.shipping_address.city }}, {{ order.shipping_address.state }} - {{
+                        order.shipping_address.pincode }}<br>
+                        Phone: {{ order.shipping_address.phone_number }}
+                    </div>
+                    {% else %}
+                    <div style="color: var(--text-muted);">Digital Instant Delivery</div>
+                    {% endif %}
+                </div>
+
+                <h3 style="margin-bottom: 1.5rem;">Payment Method</h3>
+                <div class="card glass">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <i class="fas fa-credit-card" style="color: var(--primary);"></i>
+                        <span style="font-weight: 700;">{{ order.payment_method }}</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--success); margin-top: 0.5rem; font-weight: 800;">
+                        <i class="fas fa-check-circle"></i> PAID SUCCESSFULLY
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 3rem; text-align: center;">
+            <a href="{% url 'customer_dashboard' %}" class="btn-secondary"
+                style="text-decoration: none; padding: 0.75rem 2rem; border-radius: 10px;">Go to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

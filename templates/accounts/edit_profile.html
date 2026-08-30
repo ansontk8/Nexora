@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile | NEXORA{% endblock %}
+
+{% block content %}
+<div class="mesh-bg"></div>
+
+<div class="container slide-up">
+    <div style="max-width: 700px; margin: 0 auto;">
+        <h1 class="hero-title" style="font-size: 3rem; text-align: left; margin-bottom: 3rem;">Edit <span
+                class="gradient-text">Profile</span></h1>
+
+        <form method="POST" class="card glass" style="padding: 3rem;">
+            {% csrf_token %}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.75rem; font-weight: 700;">First Name</label>
+                    <input type="text" name="first_name" value="{{ user.first_name }}" class="glass"
+                        style="width: 100%; padding: 1rem; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: white; border-radius: 8px;">
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.75rem; font-weight: 700;">Last Name</label>
+                    <input type="text" name="last_name" value="{{ user.last_name }}" class="glass"
+                        style="width: 100%; padding: 1rem; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: white; border-radius: 8px;">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 3rem;">
+                <label style="display: block; margin-bottom: 0.75rem; font-weight: 700;">Email Address</label>
+                <input type="email" name="email" value="{{ user.email }}" class="glass"
+                    style="width: 100%; padding: 1rem; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: white; border-radius: 8px;">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                <a href="javascript:history.back()" class="btn btn-secondary" style="padding: 1rem 2rem;">Cancel</a>
+                <button type="submit" class="btn btn-primary" style="padding: 1rem 3rem;">
+                    Save Changes <i class="fas fa-check"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

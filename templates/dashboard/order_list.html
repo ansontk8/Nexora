@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Orders | NEXORA{% endblock %}
+
+{% block content %}
+<div class="mesh-bg"></div>
+
+<div class="container slide-up">
+  <div
+    style="display: flex; gap: 2rem; align-items: center; margin-bottom: 4rem; padding-bottom: 2rem; border-bottom: 1px solid var(--glass-border);">
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary"
+      style="padding: 0.75rem; border-radius: 50%; width: 45px; height: 45px; justify-content: center;">
+      <i class="fas fa-chevron-left" style="font-size: 0.9rem;"></i>
+    </a>
+    <div>
+      <div
+        style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2rem; color: var(--success); margin-bottom: 0.5rem;">
+        Management</div>
+      <h2 class="hero-title" style="font-size: 2.5rem; text-align: left; margin-bottom: 0;">Manage <span
+          class="gradient-text">Orders</span></h2>
+    </div>
+  </div>
+
+  <div class="card glass" style="padding: 0; overflow: hidden;">
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+          <tr
+            style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--glass-border); background: rgba(255,255,255,0.01);">
+            <th style="padding: 1.5rem 2rem;">Order ID</th>
+            <th style="padding: 1.5rem 2rem;">Buyer</th>
+            <th style="padding: 1.5rem 2rem;">Status</th>
+            <th style="padding: 1.5rem 2rem;">Total Price</th>
+            <th style="padding: 1.5rem 2rem;">Date & Time</th>
+            <th style="padding: 1.5rem 2rem; text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody style="font-size: 0.95rem;">
+          {% for o in orders %}
+          <tr style="border-bottom: 1px solid var(--glass-border); transition: background 0.3s;"
+            onmouseover="this.style.background='rgba(255,255,255,0.03)'"
+            onmouseout="this.style.background='transparent'">
+            <td style="padding: 1.5rem 2rem;">
+              <span style="font-weight: 900; color: var(--primary); font-family: monospace; letter-spacing: 1px;">#ORD-{{ o.id|stringformat:"05d" }}</span>
+            </td>
+            <td style="padding: 1.5rem 2rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <i class="fas fa-user-circle" style="color: var(--text-dim); font-size: 0.9rem;"></i>
+                <span style="color: var(--text-main); font-weight: 700;">{{ o.user.username }}</span>
+              </div>
+            </td>
+            <td style="padding: 1.5rem 2rem;">
+              {% if o.status == 'completed' %}
+              <div
+                style="display: flex; align-items: center; gap: 0.5rem; color: var(--success); font-size: 0.75rem; font-weight: 800;">
+                <i class="fas fa-check-double"></i> COMPLETED
+              </div>
+              {% elif o.status == 'cancelled' %}
+              <div
+                style="display: flex; align-items: center; gap: 0.5rem; color: var(--danger); font-size: 0.75rem; font-weight: 800;">
+                <i class="fas fa-ban"></i> CANCELLED
+              </div>
+              {% else %}
+              <div
+                style="display: flex; align-items: center; gap: 0.5rem; color: var(--warning); font-size: 0.75rem; font-weight: 800;">
+                <i class="fas fa-wave-pulse"></i> {{ o.status|upper }}
+              </div>
+              {% endif %}
+            </td>
+            <td style="padding: 1.5rem 2rem; font-weight: 800; font-family: monospace; color: var(--text-main);">₹{{ o.total_amount }}</td>
+            <td style="padding: 1.5rem 2rem; color: var(--text-dim); font-size: 0.85rem;">{{ o.created_at|date:"d M, Y H:i" }}</td>
+            <td style="padding: 1.5rem 2rem; text-align: right;">
+              <a href="{% url 'delete_order' o.id %}" class="btn btn-primary" style="padding: 0.6rem 1.25rem; font-size: 0.75rem; background: rgba(244, 63, 94, 0.1); border-color: rgba(244, 63, 94, 0.3); color: var(--danger);" onclick="return confirm('Are you sure you want to permanently delete this order?');">
+                <i class="fas fa-trash-alt"></i>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" style="padding: 6rem 2rem; text-align: center;">
+              <p style="color: var(--text-dim);">No orders found.</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+
+{% block title %}Explore Marketplace | NEXORA{% endblock %}
+
+{% block content %}
+<div class="mesh-bg"></div>
+
+<div class="container slide-up">
+  <div
+    style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4rem; padding-bottom: 2rem; border-bottom: 1px solid var(--glass-border);">
+    <div>
+      <h1 class="hero-title" style="font-size: 3.5rem; text-align: left; margin-bottom: 1rem;"><span
+          class="gradient-text">Products</span></h1>
+      <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px;">
+        Browse our collection of digital and physical products.
+        Quality checked by NEXORA AI.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Search Results Header -->
+  {% if search_query %}
+  <div
+    style="margin-bottom: 2rem; padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--glass-border); background: rgba(255,255,255,0.02);">
+    <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--text-dim);">
+      Results for "<span class="gradient-text">{{ search_query }}</span>"
+    </h2>
+    {% if ai_filters and ai_filters.price_max or ai_filters.category %}
+    <div
+      style="display: flex; flex-wrap: wrap; gap: 0.75rem; font-size: 0.8rem; color: var(--text-dim); margin-top: 1rem; align-items: center;">
+      <div
+        style="display: flex; align-items: center; gap: 0.5rem; background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 0.4rem 0.8rem; border-radius: 50px; font-weight: 700;">
+        <i class="fas fa-robot"></i> AI INSIGHTS
+      </div>
+      {% if ai_filters.category %}
+      <span
+        style="background: rgba(255,255,255,0.05); padding: 0.4rem 0.8rem; border-radius: 50px; border: 1px solid var(--glass-border);">
+        Category: <strong style="color: var(--text-main);">{{ ai_filters.category }}</strong>
+      </span>
+      {% endif %}
+      {% if ai_filters.price_max %}
+      <span
+        style="background: rgba(255,255,255,0.05); padding: 0.4rem 0.8rem; border-radius: 50px; border: 1px solid var(--glass-border);">
+        Max Price: <strong style="color: var(--text-main);">₹{{ ai_filters.price_max }}</strong>
+      </span>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="product-grid">
+    {% for item in product_data %}
+    {% if item.product.is_active and item.product.is_approved %}
+    {% if item.product.product_type == 'digital' or item.product.stock > 0 or item.product.stock is None %}
+    <div class="card glass" style="overflow: hidden; padding: 0; display: flex; flex-direction: column;">
+      <!-- Product Image Wrap -->
+      <a href="{% url 'product_view_detail' item.product.id %}"
+        style="display: block; position: relative; height: 240px; overflow: hidden;">
+        {% if item.product.image %}
+        <img src="{{ item.product.image.url }}" alt="{{ item.product.title }}"
+          style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;"
+          onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+        {% else %}
+        <div
+          style="width: 100%; height: 100%; background: linear-gradient(45deg, var(--bg-surface), #1e293b); display: flex; align-items: center; justify-content: center;">
+          <i class="fas fa-cube" style="font-size: 4rem; color: rgba(255,255,255,0.05);"></i>
+        </div>
+        {% endif %}
+
+        <!-- Type Badge -->
+        <div style="position: absolute; top: 1.5rem; right: 1.5rem; z-index: 10;">
+          {% if item.product.product_type == 'digital' %}
+          <span
+            style="background: rgba(251, 191, 36, 0.2); backdrop-filter: blur(8px); color: #fbbf24; padding: 0.4rem 0.8rem; border-radius: 50px; font-size: 0.7rem; font-weight: 800; border: 1px solid rgba(251, 191, 36, 0.3);">
+            DIGITAL
+          </span>
+          {% elif item.product.product_type == 'physical' %}
+          <span
+            style="background: rgba(16, 185, 129, 0.2); backdrop-filter: blur(8px); color: var(--success); padding: 0.4rem 0.8rem; border-radius: 50px; font-size: 0.7rem; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">
+            PHYSICAL
+          </span>
+          {% else %}
+          <span
+            style="background: rgba(139, 92, 246, 0.2); backdrop-filter: blur(8px); color: var(--secondary); padding: 0.4rem 0.8rem; border-radius: 50px; font-size: 0.7rem; font-weight: 800; border: 1px solid rgba(139, 92, 246, 0.3);">
+            HYBRID
+          </span>
+          {% endif %}
+        </div>
+
+        {% if item.product.is_template %}
+        <div style="position: absolute; bottom: 1.5rem; left: 1.5rem; z-index: 10;">
+          <span
+            style="background: rgba(99, 102, 241, 0.8); backdrop-filter: blur(8px); color: white; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.65rem; font-weight: 900; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2);">
+            <i class="fas fa-cubes-stacked"></i> TEMPLATE
+          </span>
+        </div>
+        {% endif %}
+      </a>
+
+      <div style="padding: 2rem; flex-grow: 1; display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <span
+            style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim);">
+            {{ item.product.category }}
+          </span>
+          <span style="font-size: 1.5rem; font-weight: 900; color: var(--text-main); font-family: monospace;">
+            ₹{{ item.product.price }}
+          </span>
+        </div>
+
+        <h3 style="margin-bottom: 1rem; font-size: 1.25rem; font-weight: 800;">{{ item.product.title }}</h3>
+
+        <p
+          style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.6;">
+          {{ item.product.description }}
+        </p>
+
+        <!-- Review Summary -->
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem;">
+          <div style="color: var(--warning); font-size: 0.8rem;">
+            <i class="fas fa-star"></i>
+            <span style="font-weight: 800; color: var(--text-main); margin-left: 0.2rem;">
+              {{ item.avg_rating|floatformat:1 }}
+            </span>
+          </div>
+          <span style="width: 1px; height: 10px; background: var(--glass-border);"></span>
+          <span style="font-size: 0.75rem; color: var(--text-dim);">
+            {{ item.review_count }} Reviews
+          </span>
+        </div>
+
+        <div style="margin-top: auto;">
+
+          {% if user.is_authenticated and user.role != 'customer' %}
+          <div style="padding: 1rem; background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.2); border-radius: 8px; color: var(--danger); font-size: 0.75rem; text-align: center; font-weight: 700;">
+            <i class="fas fa-lock"></i> ACCOUNT RESTRICTED FROM PURCHASING
+          </div>
+
+          {% elif item.product.product_type == 'hybrid' %}
+          <!-- Hybrid: dropdown + dynamic stock alert -->
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.5rem;">Select Edition</label>
+            <select id="fulfillment_{{ item.product.id }}" class="glass hybrid-select"
+              data-product-id="{{ item.product.id }}"
+              data-stock="{{ item.product.stock|default:'' }}"
+              onchange="handleHybridChange(this)"
+              style="width: 100%; padding: 0.75rem; border-radius: 8px; background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); font-size: 0.85rem;">
+              {% if item.product.stock is not None and item.product.stock <= 0 %}
+              <option value="digital">Digital PDF / Access</option>
+              <option value="physical" disabled>Physical Hardcopy (Out of Stock)</option>
+              {% else %}
+              <option value="physical">Physical Hardcopy</option>
+              <option value="digital">Digital PDF / Access</option>
+              {% endif %}
+            </select>
+          </div>
+          <!-- Dynamic stock alert for hybrid -->
+          <div id="stock_alert_{{ item.product.id }}" style="display:none; margin-bottom: 1rem;"></div>
+          <!-- Hybrid Add to Cart button -->
+          <div id="cart_btn_{{ item.product.id }}">
+            <button onclick="addToCartChoice({{ item.product.id }})" class="btn btn-primary"
+              style="width: 100%; justify-content: center; padding: 1rem;">
+              Add to Cart <i class="fas fa-cart-plus"></i>
+            </button>
+          </div>
+          <!-- Trigger initial check -->
+          <script>handleHybridChange(document.getElementById('fulfillment_{{ item.product.id }}'));</script>
+
+          {% elif item.product.product_type == 'physical' and item.product.stock is not None and item.product.stock <= 0 %}
+          <!-- Physical: Out of Stock -->
+          <div style="margin-bottom: 1rem; padding: 0.5rem 1rem; background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.3); border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-circle-xmark" style="color: var(--danger); font-size: 0.8rem;"></i>
+            <span style="color: var(--danger); font-size: 0.8rem; font-weight: 800;">OUT OF STOCK</span>
+          </div>
+          <button disabled style="width: 100%; padding: 1rem; border-radius: var(--radius-md); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: var(--text-muted); font-weight: 800; font-size: 0.9rem; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+            <i class="fas fa-ban"></i> Out of Stock
+          </button>
+
+          {% elif item.product.product_type == 'physical' and item.product.stock is not None and item.product.stock <= 3 %}
+          <!-- Physical: Low Stock -->
+          <div style="margin-bottom: 1rem; padding: 0.5rem 1rem; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-triangle-exclamation" style="color: var(--warning); font-size: 0.8rem;"></i>
+            <span style="color: var(--warning); font-size: 0.8rem; font-weight: 800;">ONLY {{ item.product.stock }} LEFT IN STOCK</span>
+          </div>
+          <a href="{% url 'add_to_cart' item.product.id %}" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 1rem;">
+            Add to Cart <i class="fas fa-cart-plus"></i>
+          </a>
+
+          {% else %}
+          <a href="{% url 'add_to_cart' item.product.id %}" class="btn btn-primary"
+            style="width: 100%; justify-content: center; padding: 1rem;">
+            Add to Cart <i class="fas fa-cart-plus"></i>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% endif %}
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 8rem 2rem;">
+      <div style="font-size: 5rem; color: var(--glass-border); margin-bottom: 2rem;">
+        <i class="fas fa-box-open"></i>
+      </div>
+      <h2 style="font-size: 2rem; margin-bottom: 1rem;">No Products Found</h2>
+      <p style="color: var(--text-dim);">We couldn't find any products in this category.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  function addToCartChoice(productId) {
+    const select = document.getElementById('fulfillment_' + productId);
+    const choice = select ? select.value : 'physical';
+    window.location.href = "{% url 'add_to_cart' 0 %}".replace('0', productId) + "?fulfillment_type=" + choice;
+  }
+
+  function handleHybridChange(sel) {
+    if (!sel) return;
+    const pid   = sel.dataset.productId;
+    const stock = sel.dataset.stock;
+    const val   = sel.value;
+    const box   = document.getElementById('stock_alert_' + pid);
+    const btn   = document.getElementById('cart_btn_' + pid);
+    if (!box || !btn) return;
+
+    // Reset button first
+    btn.innerHTML = '<button onclick="addToCartChoice(' + pid + ')" class="btn btn-primary" style="width:100%;justify-content:center;padding:1rem;">Add to Cart <i class="fas fa-cart-plus"></i></button>';
+
+    if (val === 'physical' && stock !== '') {
+      const n = parseInt(stock);
+      if (n <= 0) {
+        box.innerHTML = '<div style="padding:0.5rem 1rem;background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.3);border-radius:8px;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-circle-xmark" style="color:#f43f5e;"></i>&nbsp;<span style="color:#f43f5e;font-size:0.8rem;font-weight:800;">Physical edition is OUT OF STOCK</span></div>';
+        box.style.display = 'block';
+        btn.innerHTML = '<button disabled style="width:100%;padding:1rem;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#94a3b8;font-weight:800;cursor:not-allowed;display:flex;align-items:center;justify-content:center;gap:0.5rem;"><i class="fas fa-ban"></i>&nbsp;Out of Stock</button>';
+      } else if (n <= 3) {
+        box.innerHTML = '<div style="padding:0.5rem 1rem;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:8px;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-triangle-exclamation" style="color:#fbbf24;"></i>&nbsp;<span style="color:#fbbf24;font-size:0.8rem;font-weight:800;">Only ' + n + ' physical copies left!</span></div>';
+        box.style.display = 'block';
+      } else {
+        box.style.display = 'none';
+      }
+    } else {
+      box.style.display = 'none';
+    }
+  }
+</script>
+{% endblock %}

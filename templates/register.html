@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Register | NEXORA{% endblock %}
+
+{% block content %}
+<div class="mesh-bg"></div>
+
+<div style="display: flex; justify-content: center; align-items: center; min-height: 85vh; padding: 2rem;"
+  class="slide-up">
+  <div class="card glass" style="width: 100%; max-width: 480px; padding: 3.5rem 2.5rem;">
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+      <div class="logo" style="font-size: 2rem; margin-bottom: 1rem;">NEXORA</div>
+      <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;" class="gradient-text">Create Account</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Join our community today.</p>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label
+          style="font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">Desired
+          Username</label>
+        <div style="position: relative;">
+          <i class="fas fa-user-plus"
+            style="position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 0.9rem;"></i>
+          <input type="text" name="username" placeholder="Choose a username" required style="padding-left: 3rem;">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label
+          style="font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">Secure
+          Password</label>
+        <div style="position: relative;">
+          <i class="fas fa-shield-halved"
+            style="position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 0.9rem;"></i>
+          <input type="password" name="password" placeholder="••••••••" required style="padding-left: 3rem;">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 2rem;">
+        <label
+          style="font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">I
+          want to...</label>
+        <div style="position: relative;">
+          <i class="fas fa-user-tag"
+            style="position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 0.9rem;"></i>
+          <select name="role" required style="padding-left: 3rem;">
+            <option value="customer">Buy Products (Buyer)</option>
+            <option value="vendor">Sell Products (Seller)</option>
+          </select>
+        </div>
+      </div>
+
+      {% if error %}
+      <div
+        style="background: rgba(244, 63, 94, 0.1); border: 1px solid var(--danger); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; color: var(--danger); font-size: 0.85rem;">
+        <i class="fas fa-circle-exclamation"></i> {{ error }}
+      </div>
+      {% endif %}
+
+      <button type="submit" class="btn btn-primary"
+        style="width: 100%; justify-content: center; font-size: 1rem; padding: 1rem;">
+        Create Account <i class="fas fa-check"></i>
+      </button>
+    </form>
+
+    <div style="margin-top: 2.5rem; text-align: center; border-top: 1px solid var(--glass-border); padding-top: 2rem;">
+      <p style="color: var(--text-muted); font-size: 0.9rem;">
+        Already have an account? <a href="{% url 'login' %}"
+          style="color: var(--primary); text-decoration: none; font-weight: 700;">Sign In</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

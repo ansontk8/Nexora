@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}Admin Panel | NEXORA{% endblock %}
+{% block content %}
+<div class="mesh-bg"></div>
+<div class="container slide-up">
+    <div
+        style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4rem; padding-bottom: 2rem; border-bottom: 1px solid var(--glass-border);">
+        <div>
+            <div
+                style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2rem; color: var(--danger); margin-bottom: 1rem;">
+                Platform Management</div>
+            <h1 class="hero-title" style="font-size: 3.5rem; text-align: left; margin-bottom: 0;">Admin <span
+                    class="gradient-text">Hub</span></h1>
+        </div>
+        <div class="glass"
+            style="padding: 1rem 1.5rem; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 700; color: var(--danger); display: flex; align-items: center; gap: 0.75rem; border: 1px solid rgba(244, 63, 94, 0.2);">
+            <i class="fas fa-user-shield"></i> Admin Access
+        </div>
+    </div>
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2rem; margin-bottom: 4rem;">
+        <div class="card glass">
+            <h4
+                style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">
+                Total Users</h4>
+            <div style="font-size: 2.5rem; font-weight: 900;">{{total_users}}</div>
+            <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem;">Registered Users</p>
+        </div>
+        <div class="card glass">
+            <h4
+                style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">
+                Total Sellers</h4>
+            <div style="font-size: 2.5rem; font-weight: 900;">{{total_vendors}}</div>
+            <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem;">Active Shops</p>
+        </div>
+        <div class="card glass" style="border-bottom: 2px solid var(--primary);">
+            <h4
+                style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">
+                Total Products</h4>
+            <div style="font-size: 2.5rem; font-weight: 900;">{{total_products}}</div>
+            <p style="font-size: 0.75rem; color: var(--warning); font-weight: 700; margin-top: 0.5rem;">
+                {{pending_products}} WAITING FOR APPROVAL</p>
+        </div>
+        <div class="card glass">
+            <h4
+                style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">
+                Total Orders</h4>
+            <div style="font-size: 2.5rem; font-weight: 900;">{{total_orders}}</div>
+            <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem;">Completed Orders</p>
+        </div>
+
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 340px; gap: 3rem;">
+        <div class="card glass" style="padding: 2.5rem;">
+            <h3
+                style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
+                <i class="fas fa-terminal gradient-text"></i> Admin Console
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem;">
+                <a href="{% url 'vendor_list' %}" class="btn btn-secondary"
+                    style="padding: 1.25rem; font-size: 0.85rem; border-radius: var(--radius-md);"><i
+                        class="fas fa-id-card-clip" style="color: var(--primary);"></i> Manage Sellers</a>
+                <a href="{% url 'admin_product_list' %}" class="btn btn-secondary"
+                    style="padding: 1.25rem; font-size: 0.85rem; border-radius: var(--radius-md);"><i
+                        class="fas fa-box-open" style="color: var(--secondary);"></i> Manage Products</a>
+                <a href="{% url 'user_list' %}" class="btn btn-secondary"
+                    style="padding: 1.25rem; font-size: 0.85rem; border-radius: var(--radius-md);"><i
+                        class="fas fa-user-shield" style="color: var(--accent);"></i> Manage Users</a>
+                <a href="{% url 'order_list' %}" class="btn btn-secondary"
+                    style="padding: 1.25rem; font-size: 0.85rem; border-radius: var(--radius-md);"><i
+                        class="fas fa-receipt" style="color: var(--success);"></i> Manage Orders</a>
+                <a href="{% url 'review_list' %}" class="btn btn-secondary"
+                    style="padding: 1.25rem; font-size: 0.85rem; border-radius: var(--radius-md);"><i
+                        class="fas fa-magnifying-glass-chart" style="color: var(--info);"></i> Review Analysis</a>
+            </div>
+        </div>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 4rem;">
+        <div class="card glass">
+            <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--danger);"><i
+                    class="fas fa-flag"></i> FLAGGED REVIEWS LIST</h3>
+            <ul style="list-style: none; padding: 0;">
+                {% for review in flagged_reviews %}
+                <li
+                    style="padding: 1rem; border-bottom: 1px solid var(--glass-border); background: rgba(239, 68, 68, 0.05); margin-bottom: 0.5rem; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.1);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 800; color: var(--text-main);">{{review.username}}</span>
+                        <span
+                            style="color: #f87171; font-size: 0.7rem; font-weight: 900; background: rgba(239, 68, 68, 0.2); padding: 0.2rem 0.5rem; border-radius: 4px;">{{review.verdict_upper}}</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.5rem;">{{review.text_short}}
+                    </p>
+                    <div style="font-size: 0.7rem; color: var(--text-dim); font-style: italic;">PRODUCT:
+                        {{review.product_title}}</div>
+                </li>
+                {% empty %}
+                <li style="padding: 2rem; text-align: center; color: var(--text-dim);">No suspicious activity detected.
+                </li>
+                {% endfor %}
+            </ul>
+            {% if flagged_reviews %}
+            <a href="{% url 'review_list' %}" class="btn btn-secondary"
+                style="width: 100%; justify-content: center; margin-top: 1rem; font-size: 0.8rem;">View All Flagged
+                Reviews <i class="fas fa-arrow-right"></i></a>
+            {% endif %}
+        </div>
+        <div class="card glass">
+            <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--success);"><i
+                    class="fas fa-trophy"></i> Top Performing Vendors</h3>
+            <ul style="list-style: none; padding: 0;">
+                {% for vendor in top_vendors %}
+                <li
+                    style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid var(--glass-border);">
+                    <div>
+                        <div style="font-weight: 800;">{{vendor.username}}</div>
+                        <div style="font-size: 0.7rem; color: var(--text-dim);">Total Sales:
+                            ₹{{vendor.total_revenue|floatformat:0}}</div>
+                    </div>
+                    <div
+                        style="font-size: 0.75rem; padding: 0.2rem 0.6rem; background: var(--success); color: white; border-radius: 12px; font-weight: 800;">
+                        <i class="fas fa-trophy"></i> Top Seller
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}

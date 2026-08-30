@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="mesh-bg"></div>
+
+<!-- Hero Section -->
+<section class="hero-container slide-down">
+    <!-- Dynamic Background Image Overlay -->
+    <div
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('/static/brain/58e07752-c411-412b-b96c-b08ce2ad10ad/nexora_hero_bg_1769662529442.png') no-repeat center center; background-size: cover; opacity: 0.15; pointer-events: none; mix-blend-mode: overlay;">
+    </div>
+
+    <div style="position: relative; z-index: 1;">
+        <h1 class="hero-title"><span class="gradient-text">Shopping</span><br>Made Easy by AI.</h1>
+        <p class="hero-subtitle">
+            Welcome to NEXORA – the simple way to buy digital and physical items.
+            Our AI helps you find exactly what you need.
+        </p>
+        <div style="display: flex; gap: 1.5rem; justify-content: center;">
+            <a href="{% url 'register' %}" class="btn btn-primary">
+                Join Now <i class="fas fa-chevron-right"></i>
+            </a>
+            <a href="{% url 'product_list' %}" class="btn btn-secondary">
+                View Products
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Grid -->
+<section class="container slide-up" style="margin-top: -5rem;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2.5rem;">
+        <div class="card glass">
+            <div
+                style="width: 60px; height: 60px; background: rgba(99, 102, 241, 0.1); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                <i class="fas fa-brain gradient-text" style="font-size: 1.5rem;"></i>
+            </div>
+            <h3>AI Help</h3>
+            <p style="color: var(--text-muted);">
+                Our AI helps sellers create great product pages and gives fast support to buyers.
+            </p>
+        </div>
+
+        <div class="card glass">
+            <div
+                style="width: 60px; height: 60px; background: rgba(139, 92, 246, 0.1); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                <i class="fas fa-cubes gradient-text" style="font-size: 1.5rem;"></i>
+            </div>
+            <h3>Digital & Physical</h3>
+            <p style="color: var(--text-muted);">
+                Buy both digital downloads and real products in one simple store with easy tracking.
+            </p>
+        </div>
+
+        <div class="card glass">
+            <div
+                style="width: 60px; height: 60px; background: rgba(244, 114, 182, 0.1); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                <i class="fas fa-sparkles gradient-text" style="font-size: 1.5rem;"></i>
+            </div>
+            <h3>Smart Search</h3>
+            <p style="color: var(--text-muted);">
+                Our smart system helps you find the products you actually want to buy.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Trust Section -->
+<section class="container" style="text-align: center; padding-top: 2rem;">
+    <p
+        style="text-transform: uppercase; letter-spacing: 0.2rem; color: var(--text-dim); font-size: 0.75rem; font-weight: 800; margin-bottom: 3rem;">
+        Trusted by thousands of sellers globally
+    </p>
+    <div
+        style="display: flex; gap: 4rem; justify-content: center; opacity: 0.4; filter: grayscale(1); flex-wrap: wrap;">
+        <i class="fab fa-stripe style='font-size: 3rem;'"></i>
+        <i class="fab fa-apple style='font-size: 3rem;'"></i>
+        <i class="fab fa-google style='font-size: 3rem;'"></i>
+        <i class="fab fa-amazon style='font-size: 3rem;'"></i>
+    </div>
+</section>
+{% endblock %}

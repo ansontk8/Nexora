@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Cart | NEXORA{% endblock %}
+
+{% block content %}
+<div class="mesh-bg"></div>
+
+<div class="container slide-up">
+    <div style="margin-bottom: 4rem; padding-bottom: 2rem; border-bottom: 1px solid var(--glass-border);">
+        <h1 class="hero-title" style="font-size: 3.5rem; text-align: left; margin-bottom: 0;">Shopping <span
+                class="gradient-text">Cart</span></h1>
+    </div>
+
+    {% if cart.items.all %}
+    <div style="display: grid; grid-template-columns: 1fr 380px; gap: 3rem;">
+        <div class="card glass" style="padding: 0; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr
+                        style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--glass-border);">
+                        <th style="padding: 1.5rem 2rem;">Product</th>
+                        <th style="padding: 1.5rem 2rem;">Price</th>
+                        <th style="padding: 1.5rem 2rem;">Quantity</th>
+                        <th style="padding: 1.5rem 2rem;">Total</th>
+                        <th style="padding: 1.5rem 2rem;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart.items.all %}
+                    <tr style="border-bottom: 1px solid var(--glass-border);">
+                        <td style="padding: 1.5rem 2rem; display: flex; align-items: center; gap: 1.5rem;">
+                            <div
+                                style="width: 60px; height: 60px; border-radius: 8px; overflow: hidden; background: var(--bg-surface);">
+                                {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}"
+                                    style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                <div
+                                    style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--glass-border);">
+                                    <i class="fas fa-cube"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div style="font-weight: 800; color: var(--text-main);">{{ item.product.title }}</div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem;">
+                                    <span style="font-size: 0.7rem; color: var(--text-dim);">{{ item.product.category }}</span>
+                                    <span
+                                        style="font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 900; text-transform: uppercase; background: {{ item.fulfillment_type|yesno:'rgba(251, 191, 36, 0.1),rgba(16, 185, 129, 0.1)' }}; color: {{ item.fulfillment_type|yesno:'#fbbf24,var(--success)' }};">
+                                        {{ item.fulfillment_type }}
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="padding: 1.5rem 2rem; font-weight: 700; font-family: monospace;">₹{{ item.product.price }}</td>
+                        <td style="padding: 1.5rem 2rem;">{{ item.quantity }}</td>
+                        <td style="padding: 1.5rem 2rem; font-weight: 700; font-family: monospace;">₹{{ item.get_cost }}</td>
+                        <td style="padding: 1.5rem 2rem;">
+                            <a href="{% url 'remove_from_cart' item.id %}" style="color: var(--danger);"><i
+                                    class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card glass" style="height: fit-content;">
+            <h3 style="margin-bottom: 2rem;">Order Summary</h3>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; color: var(--text-dim);">
+                <span>Subtotal</span>
+                <span>₹{{ cart.get_total }}</span>
+            </div>
+            <div
+                style="display: flex; justify-content: space-between; margin-bottom: 2rem; font-size: 1.25rem; font-weight: 900; color: var(--text-main); border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+                <span>Total</span>
+                <span class="gradient-text">₹{{ cart.get_total }}</span>
+            </div>
+            <a href="{% url 'checkout_address' %}" class="btn btn-primary"
+                style="width: 100%; justify-content: center; padding: 1.25rem;">
+                Proceed to Checkout <i class="fas fa-arrow-right"></i>
+            </a>
+            <p style="text-align: center; color: var(--text-dim); font-size: 0.75rem; margin-top: 1.5rem;">
+                <i class="fas fa-shield-halved"></i> Secure 256-bit SSL Encrypted Checkout
+            </p>
+        </div>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 10rem 2rem;">
+        <div style="font-size: 5rem; color: var(--glass-border); margin-bottom: 2rem;">
+            <i class="fas fa-shopping-basket"></i>
+        </div>
+        <h2 style="font-size: 2rem; margin-bottom: 1rem;">Your cart is empty</h2>
+        <a href="{% url 'product_list' %}" class="btn btn-secondary">Go Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
