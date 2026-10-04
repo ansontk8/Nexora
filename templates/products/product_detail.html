@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.title }} | NEXORA{% endblock %}
+
+{% block content %}
+<div class="mesh-bg"></div>
+
+<div class="container slide-up" style="max-width: 1400px; margin: 0 auto; padding: 4rem 2rem;">
+    <!-- Header Navigation -->
+    <div
+        style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; padding-bottom: 2rem; border-bottom: 1px solid var(--glass-border);">
+        <a href="{% url 'product_list' %}" class="btn btn-secondary" style="padding: 0.6rem 1.2rem; font-size: 0.8rem;">
+            <i class="fas fa-arrow-left"></i> Back to Shop
+        </a>
+
+        {% if user.role == 'admin' or user == product.vendor %}
+        <div class="glass"
+            style="padding: 0.6rem 1.2rem; font-size: 0.75rem; font-weight: 800; color: var(--primary); border: 1px solid var(--primary); display: flex; align-items: center; gap: 0.8rem;">
+            <i class="fas fa-shield-halved"></i>
+            {% if user.role == 'admin' %}ADMIN CONSOLE{% else %}SELLER TOOLS{% endif %}
+            <span style="width: 1px; height: 12px; background: var(--glass-border);"></span>
+            <span style="color: {% if product.is_approved %}var(--success){% else %}var(--warning){% endif %};">
+                {% if product.is_approved %}PUBLISHED{% else %}PENDING APPROVAL{% endif %}
+            </span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Main Content Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 450px; gap: 4rem; align-items: start;">
+
+        <!-- Left Column: Visuals & Reviews -->
+        <div style="display: grid; gap: 4rem;">
+            <!-- Product Identity -->
+            <div>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                    <span
+                        style="font-size: 0.7rem; background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase;">
+                        {{ product.category }}
+                    </span>
+                    {% if product.is_template %}
+                    <span
+                        style="font-size: 0.7rem; background: var(--secondary); color: white; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 900; letter-spacing: 0.1em;">
+                        <i class="fas fa-cubes-stacked"></i> TEMPLATE
+                    </span>
+                    {% endif %}
+                </div>
+                <h1 class="hero-title" style="text-align: left; margin-bottom: 1rem; font-size: 4rem;">
+                    {{ product.title|truncatechars:40 }}
+                    <span class="gradient-text">Core</span>
+                </h1>
+
+                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                    <div style="font-size: 2.5rem; font-weight: 900; color: var(--text-main);">
+                        ₹{{ product.price }}
+                    </div>
+                    <div
+                        style="display: flex; align-items: center; gap: 0.5rem; background: rgba(251, 191, 36, 0.1); color: #fbbf24; padding: 0.4rem 1rem; border-radius: 50px; font-weight: 800; font-size: 0.9rem; border: 1px solid rgba(251, 191, 36, 0.2);">
+                        <i class="fas fa-star"></i>
+                        {{ avg_rating|floatformat:1 }}
+                        <span style="color: var(--text-dim); font-weight: 500; margin-left: 0.3rem;">
+                            ({{ review_count }})
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Product Card -->
+            <div class="card glass"
+                style="padding: 0; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; min-height: 500px;">
+                <div style="padding: 3rem; display: flex; flex-direction: column;">
+                    <h3
+                        style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--primary); margin-bottom: 2rem;">
+                        Overview</h3>
+                    <p
+                        style="color: var(--text-main); line-height: 1.8; font-size: 1.05rem; opacity: 0.8; margin-bottom: 3rem; flex-grow: 1;">
+                        {{ product.description }}
+                    </p>
+                    <div style="display: grid; gap: 1rem;">
+
+                        <!-- Stock Status for physical/hybrid products -->
+                        {% if product.product_type == 'physical' or product.product_type == 'hybrid' %}
+                          {% if product.stock is not None %}
+                            {% if product.stock == 0 %}
+                            <div style="padding: 1rem 1.5rem; background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.3); border-radius: var(--radius-md); display: flex; align-items: center; gap: 0.75rem;">
+                              <i class="fas fa-circle-xmark" style="color: var(--danger); font-size: 1.2rem;"></i>
+                              <div>
+                                <div style="color: var(--danger); font-weight: 800; font-size: 0.95rem;">Out of Stock</div>
+                                <div style="color: var(--text-dim); font-size: 0.8rem;">The vendor will restock soon. Check back later.</div>
+                              </div>
+                            </div>
+                            {% elif product.stock <= 3 %}
+                            <div style="padding: 1rem 1.5rem; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); border-radius: var(--radius-md); display: flex; align-items: center; gap: 0.75rem;">
+                              <i class="fas fa-triangle-exclamation" style="color: var(--warning); font-size: 1.2rem;"></i>
+                              <div>
+                                <div style="color: var(--warning); font-weight: 800; font-size: 0.95rem;">Low Stock — Only {{ product.stock }} left!</div>
+                                <div style="color: var(--text-dim); font-size: 0.8rem;">Order soon before it runs out.</div>
+                              </div>
+                            </div>
+                            {% endif %}
+                          {% endif %}
+                        {% endif %}
+
+                        {% if user.is_authenticated and user.role != 'customer' %}
+                        <div class="glass" style="padding: 1.5rem; background: rgba(244, 63, 94, 0.05); border: 1px solid rgba(244, 63, 94, 0.2); border-radius: var(--radius-md); text-align: center;">
+                            <div style="color: var(--danger); font-weight: 800; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                <i class="fas fa-ban"></i> PURCHASE RESTRICTED
+                            </div>
+                            <p style="font-size: 0.75rem; color: var(--text-dim); margin: 0;">
+                                Vendor and Admin accounts are not permitted to buy products. Please use a Customer account.
+                            </p>
+                        </div>
+
+                        {% elif product.product_type == 'hybrid' %}
+                        <!-- Hybrid: dropdown + dynamic stock alert -->
+                        <div>
+                            <label style="display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem;">Select Edition</label>
+                            <select id="detail_fulfillment" class="glass"
+                                data-product-id="{{ product.id }}"
+                                data-stock="{{ product.stock|default:'' }}"
+                                onchange="handleDetailHybridChange(this)"
+                                style="width: 100%; padding: 1rem; border-radius: 8px; background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); font-size: 0.95rem; margin-bottom: 1rem;">
+                                {% if product.stock is not None and product.stock <= 0 %}
+                                <option value="digital">Digital PDF / Access</option>
+                                <option value="physical" disabled>Physical Hardcopy (Out of Stock)</option>
+                                {% else %}
+                                <option value="physical">Physical Hardcopy</option>
+                                <option value="digital">Digital PDF / Access</option>
+                                {% endif %}
+                            </select>
+                            <!-- Dynamic stock alert area -->
+                            <div id="detail_stock_alert" style="display:none; margin-bottom: 1rem;"></div>
+                            <!-- Dynamic button area -->
+                            <div id="detail_cart_btn">
+                                <a href="{% url 'add_to_cart' product.id %}?fulfillment_type=physical" class="btn btn-primary"
+                                    style="justify-content: center; padding: 1.5rem; font-size: 1.1rem; width: 100%;">
+                                    Purchase Package <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <script>
+                            (function() {
+                                var sel = document.getElementById('detail_fulfillment');
+                                if (sel) handleDetailHybridChange(sel);
+                            })();
+                        </script>
+
+                        {% elif product.product_type == 'physical' and product.stock is not None and product.stock <= 0 %}
+                        <button disabled
+                            style="width: 100%; padding: 1.5rem; font-size: 1.1rem; border-radius: var(--radius-md); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: var(--text-muted); font-weight: 800; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                            <i class="fas fa-ban"></i> Out of Stock
+                        </button>
+                        {% else %}
+                        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary"
+                            style="justify-content: center; padding: 1.5rem; font-size: 1.1rem;">
+                            Purchase Package <i class="fas fa-arrow-right"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); position: relative; overflow: hidden;">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.title }}"
+                        style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <div
+                        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-cube" style="font-size: 5rem; color: rgba(255,255,255,0.05);"></i>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div id="reviews" class="card glass" style="padding: 3rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+                    <h3 style="margin: 0; font-size: 1.5rem; font-weight: 900;">Intelligence <span
+                            class="gradient-text">Feedback</span></h3>
+                    <div style="font-size: 0.85rem; color: var(--text-dim);">
+                        {{ review_count }} Verified Samples
+                    </div>
+                </div>
+
+                <div style="display: grid; gap: 1.5rem;">
+                    {% for review in product.review_set.all %}
+                    <div class="glass"
+                        style="padding: 1.5rem; background: rgba(51, 65, 85, 0.3); border-radius: var(--radius-md);">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div
+                                    style="width: 35px; height: 35px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 0.8rem;">
+                                    {{ review.user.username|make_list|first|upper }}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 800; font-size: 0.9rem;">
+                                        {{ review.user.username }}
+                                    </div>
+                                    <div style="font-size: 0.7rem; color: var(--text-dim);">Verified Customer</div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="color: var(--warning); font-size: 0.7rem; margin-bottom: 0.3rem;">
+                                    {% for i in "12345" %}
+                                    <i
+                                        class="{% if forloop.counter <= review.rating %}fas{% else %}far{% endif %} fa-star"></i>
+                                    {% endfor %}
+                                </div>
+                                <div style="font-size: 0.65rem; color: var(--text-dim);">
+                                    {{ review.created_at|date:"M d, Y" }}
+                                </div>
+                            </div>
+                        </div>
+                        <p style="color: var(--text-main); line-height: 1.6; opacity: 0.8; font-size: 0.9rem;">
+                            {{ review.text }}
+                        </p>
+
+                        <!-- AI Veracity Check -->
+                        {% if review.verdict != 'Genuine' %}
+                        <div
+                            style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border); display: flex; align-items: center; gap: 0.75rem;">
+                            {% if review.verdict == 'Fake' %}
+                            <span
+                                style="font-size: 0.65rem; font-weight: 900; color: var(--danger); background: rgba(244, 63, 94, 0.1); padding: 0.3rem 0.6rem; border-radius: 4px; border: 1px solid rgba(244, 63, 94, 0.2);">
+                                <i class="fas fa-skull"></i> AI ALERT: FAKE CONTENT DETECTED
+                            </span>
+                            {% elif review.verdict == 'Suspicious' %}
+                            <span
+                                style="font-size: 0.65rem; font-weight: 900; color: var(--warning); background: rgba(245, 158, 11, 0.1); padding: 0.3rem 0.6rem; border-radius: 4px; border: 1px solid rgba(245, 158, 11, 0.2);">
+                                <i class="fas fa-triangle-exclamation"></i> AI MONITOR: SUSPICIOUS PATTERN
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div
+                        style="text-align: center; padding: 3rem; color: var(--text-dim); border: 1px dashed var(--glass-border); border-radius: var(--radius-lg);">
+                        <p>No neural feedback samples available.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Specs & Fulfillment -->
+        <div style="display: grid; gap: 2rem; position: sticky; top: 120px;">
+            <div class="card glass" style="padding: 2.5rem;">
+                <h3
+                    style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--text-dim); margin-bottom: 2rem;">
+                    Fulfillment Hub</h3>
+                {% if product.product_type == 'physical' or product.physical_delivery_available %}
+                <div
+                    style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; padding: 1.25rem; background: rgba(16, 185, 129, 0.05); border-radius: var(--radius-md); border: 1px solid rgba(16, 185, 129, 0.1);">
+                    <div
+                        style="width: 40px; height: 40px; background: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                        <i class="fas fa-truck-fast"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 800; color: var(--success); font-size: 0.85rem;">Express Shipping</div>
+                        <div style="font-size: 0.7rem; color: var(--text-dim);">Estimated {{ delivery_days }} days</div>
+                    </div>
+                </div>
+                {% endif %}
+                <div style="display: grid; gap: 1rem; font-size: 0.85rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
+                        <span style="color: var(--text-dim);">Market Stock</span>
+                        <span style="font-weight: 800;">
+                            {{ product.stock|default:"∞ UNLIMITED" }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card glass" style="padding: 2rem;">
+                <h3
+                    style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--text-dim); margin-bottom: 2rem;">
+                    Technical Node</h3>
+                <div style="display: grid; gap: 1rem; font-size: 0.8rem; color: var(--text-main);">
+                    <div
+                        style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border: 1px solid var(--glass-border);">
+                        <div
+                            style="color: var(--text-dim); margin-bottom: 0.3rem; font-size: 0.7rem; font-weight: 800;">
+                            SYSTEM ID</div>
+                        <code style="font-family: monospace; font-weight: 700; color: var(--primary);">
+                            #NEX-{{ product.id }}
+                        </code>
+                    </div>
+                    <div
+                        style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border: 1px solid var(--glass-border);">
+                        <div
+                            style="color: var(--text-dim); margin-bottom: 0.3rem; font-size: 0.7rem; font-weight: 800;">
+                            MERCHANT</div>
+                        <div style="font-weight: 700;">
+                            {{ product.vendor.username }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function handleDetailHybridChange(sel) {
+    if (!sel) return;
+    const stock = sel.dataset.stock;
+    const val   = sel.value;
+    const box   = document.getElementById('detail_stock_alert');
+    const btn   = document.getElementById('detail_cart_btn');
+    if (!box || !btn) return;
+    const baseUrl = sel.dataset.productId ? "/products/" + sel.dataset.productId + "/add-to-cart/" : "#";
+    btn.innerHTML = '<a href="' + baseUrl + '?fulfillment_type=' + val + '" class="btn btn-primary" style="justify-content:center;padding:1.5rem;font-size:1.1rem;width:100%;">Purchase Package <i class="fas fa-arrow-right"></i></a>';
+    if (val === 'physical' && stock !== '') {
+        const n = parseInt(stock);
+        if (n <= 0) {
+            box.innerHTML = '<div style="padding:1rem 1.5rem;background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.3);border-radius:8px;display:flex;align-items:center;gap:0.75rem;"><i class="fas fa-circle-xmark" style="color:#f43f5e;font-size:1.2rem;"></i><div><div style="color:#f43f5e;font-weight:800;">Physical Edition Out of Stock</div><div style="color:#94a3b8;font-size:0.8rem;">The vendor will restock soon. You can still purchase the digital edition.</div></div></div>';
+            box.style.display = 'block';
+            btn.innerHTML = '<button disabled style="width:100%;padding:1.5rem;font-size:1.1rem;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#94a3b8;font-weight:800;cursor:not-allowed;display:flex;align-items:center;justify-content:center;gap:0.75rem;"><i class="fas fa-ban"></i> Out of Stock</button>';
+        } else if (n <= 3) {
+            box.innerHTML = '<div style="padding:1rem 1.5rem;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:8px;display:flex;align-items:center;gap:0.75rem;"><i class="fas fa-triangle-exclamation" style="color:#fbbf24;font-size:1.2rem;"></i><div><div style="color:#fbbf24;font-weight:800;">Low Stock &#8212; Only ' + n + ' physical copies left!</div><div style="color:#94a3b8;font-size:0.8rem;">Order soon before it runs out.</div></div></div>';
+            box.style.display = 'block';
+        } else { box.style.display = 'none'; }
+    } else { box.style.display = 'none'; }
+}
+</script>
+{% endblock %}

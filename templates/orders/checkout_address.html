@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Select Address | NEXORA{% endblock %}
+
+{% block content %}
+<div class="mesh-bg"></div>
+
+<div class="container slide-up">
+    <div style="margin-bottom: 4rem; padding-bottom: 2rem; border-bottom: 1px solid var(--glass-border);">
+        <h1 class="hero-title" style="font-size: 3.5rem; text-align: left; margin-bottom: 0;">Select <span
+                class="gradient-text">Address</span></h1>
+    </div>
+
+    {% if error %}
+    <div class="card glass"
+        style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 1rem; margin-bottom: 2rem; font-weight: 700;">
+        <i class="fas fa-exclamation-circle"></i> {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <div style="display: grid; grid-template-columns: 1fr 380px; gap: 3rem;">
+            <div>
+                {% if addresses %}
+                <h3 style="margin-bottom: 2rem;">Your Saved Addresses</h3>
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 4rem;">
+                    {% for address in addresses %}
+                    <label class="card glass"
+                        style="cursor: pointer; position: relative; border: 1px solid var(--glass-border); transition: 0.3s;"
+                        onclick="this.style.borderColor='var(--primary)'">
+                        <input type="radio" name="address_id" value="{{ address.id }}" {{
+                            address.is_default|default:forloop.first|yesno:"checked," }}
+                            style="position: absolute; top: 1.5rem; right: 1.5rem; width: 20px; height: 20px;">
+                        <h4 style="margin-bottom: 0.5rem; font-weight: 800;">{{ address.full_name }}</h4>
+                        <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1rem;">
+                            {{ address.street_address }}<br>
+                            {{ address.city }}, {{ address.state }} - {{ address.pincode }}<br>
+                            Phone: {{ address.phone_number }}
+                        </p>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <h3 style="margin-bottom: 2rem;">Add a New Address</h3>
+                <div class="card glass" style="padding: 2.5rem;">
+                    <input type="radio" name="address_id" value="new" {{ addresses|yesno:",checked" }}
+                        id="new_address_radio" style="margin-bottom: 2rem;"> Add new address
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Full Name</label>
+                            <input type="text" name="full_name" class="glass"
+                                style="width: 100%; padding: 1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; border-radius: 8px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="text" name="phone_number" class="glass"
+                                style="width: 100%; padding: 1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; border-radius: 8px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Pincode</label>
+                            <input type="text" name="pincode" class="glass"
+                                style="width: 100%; padding: 1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; border-radius: 8px;">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Street Address</label>
+                            <textarea name="street_address" class="glass"
+                                style="width: 100%; padding: 1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; border-radius: 8px; min-height: 100px;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" name="city" class="glass"
+                                style="width: 100%; padding: 1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; border-radius: 8px;">
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" name="state" class="glass"
+                                style="width: 100%; padding: 1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; border-radius: 8px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card glass" style="height: fit-content; position: sticky; top: 2rem;">
+                <h3 style="margin-bottom: 2rem;">Confirm Checkout</h3>
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; justify-content: center; padding: 1.25rem;">
+                    Continue to Payment <i class="fas fa-credit-card"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

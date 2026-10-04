@@ -1,0 +1,157 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NEXORA">
+    <link rel="apple-touch-icon" href="{% static 'images/icons/icon-192x192.png' %}">
+    <link rel="manifest" href="/manifest.json">
+    
+    <title>{% block title %}NEXORA | AI-Powered Hybrid Marketplace{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+    <nav class="glass-nav">
+        <a href="{% url 'landing' %}" style="text-decoration: none;">
+            <div class="logo">NEXORA</div>
+        </a>
+        <div class="nav-links">
+            <!-- Create a centered search bar -->
+            <form action="{% url 'product_list' %}" method="GET" style="position: relative; margin-right: 1rem;">
+                <input type="text" name="q" placeholder="AI Smart Search..."
+                    style="padding: 0.6rem 1rem 0.6rem 2.5rem; border-radius: 50px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: white; width: 250px; font-size: 0.85rem; transition: all 0.3s;"
+                    onfocus="this.style.background='rgba(255,255,255,0.1)'; this.style.width='300px'; this.style.borderColor='var(--primary)'"
+                    onblur="this.style.background='rgba(255,255,255,0.05)'; this.style.width='250px'; this.style.borderColor='var(--glass-border)'">
+                <i class="fas fa-sparkles"
+                    style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 0.8rem;"></i>
+            </form>
+
+            <a href="{% url 'product_list' %}"
+                style="color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 0.9rem;">Shop</a>
+
+            {% if user.is_authenticated %}
+            <a href="{% url 'view_cart' %}" style="color: var(--text-main); text-decoration: none; position: relative;">
+                <i class="fas fa-shopping-basket" style="font-size: 1.2rem; opacity: 0.8;"></i>
+                <span
+                    style="position: absolute; top: -8px; right: -12px; background: var(--primary); color: white; font-size: 0.65rem; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900;">
+                    {{ user.cart.items.count|default:0 }}
+                </span>
+            </a>
+
+            {% if user.role == 'customer' %}
+            <a href="{% url 'customer_dashboard' %}"
+                style="color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 0.9rem;">Dashboard</a>
+            {% elif user.role == 'vendor' %}
+            <a href="{% url 'vendor_dashboard' %}"
+                style="color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 0.9rem;">Seller
+                Panel</a>
+            {% elif user.role == 'admin' %}
+            <a href="{% url 'admin_dashboard' %}"
+                style="color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 0.9rem;">Admin</a>
+            {% endif %}
+
+            <div style="width: 1px; height: 24px; background: var(--glass-border);"></div>
+
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span style="color: var(--text-dim); font-size: 0.85rem;">{{ user.username }}</span>
+            </div>
+            {% else %}
+            <a href="{% url 'login' %}"
+                style="color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 0.9rem;">Sign In</a>
+            <a href="{% url 'register' %}" class="btn btn-primary" style="padding: 0.6rem 1.25rem; font-size: 0.9rem;">
+                Get Started
+            </a>
+            {% endif %}
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="nav-right">
+            <a href="{% url 'logout' %}" class="logout-pill" title="Sign Out">
+                <i class="fas fa-power-off"></i>
+                <span class="logout-text">Logout</span>
+            </a>
+        </div>
+        {% endif %}
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'chatbot_widget.html' %}
+
+    <footer
+        style="padding: 6rem 2rem; border-top: 1px solid var(--glass-border); text-align: center; background: rgba(2, 6, 23, 0.4);">
+        <div class="logo" style="font-size: 1.25rem; margin-bottom: 1.5rem; opacity: 0.6;">NEXORA</div>
+        <p style="color: var(--text-dim); font-size: 0.9rem; max-width: 600px; margin: 0 auto 2rem;">
+            The world’s first shop that brings digital and physical products together with the help of AI.
+        </p>
+        <div
+            style="display: flex; gap: 2rem; justify-content: center; margin-bottom: 3rem; font-size: 1.25rem; color: var(--text-dim);">
+            <i class="fab fa-twitter"></i>
+            <i class="fab fa-github"></i>
+            <i class="fab fa-linkedin"></i>
+        </div>
+        <p style="color: var(--text-dim); font-size: 0.8rem; letter-spacing: 0.05em;">&copy; 2026 NEXORA SYSTEMS. ALL
+            RIGHTS RESERVED.</p>
+    </footer>
+
+    <nav class="mobile-nav">
+        <a href="{% url 'landing' %}" class="mobile-nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="{% url 'product_list' %}" class="mobile-nav-item">
+            <i class="fas fa-search"></i>
+            <span>Explore</span>
+        </a>
+        <a href="{% url 'view_cart' %}" class="mobile-nav-item">
+            <i class="fas fa-shopping-basket"></i>
+            <span>Cart</span>
+        </a>
+        {% if user.is_authenticated %}
+            {% if user.role == 'customer' %}
+            <a href="{% url 'customer_dashboard' %}" class="mobile-nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+            {% elif user.role == 'vendor' %}
+            <a href="{% url 'vendor_dashboard' %}" class="mobile-nav-item">
+                <i class="fas fa-store"></i>
+                <span>Seller</span>
+            </a>
+            {% endif %}
+        {% else %}
+        <a href="{% url 'login' %}" class="mobile-nav-item">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Login</span>
+        </a>
+        {% endif %}
+    </nav>
+
+    {% block extra_js %}{% endblock %}
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed', err));
+            });
+        }
+    </script>
+</body>
+
+
+</html>

@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Products | NEXORA{% endblock %}
+
+{% block content %}
+<div class="mesh-bg"></div>
+
+<div class="container slide-up">
+  <div
+    style="display: flex; gap: 2rem; align-items: center; margin-bottom: 4rem; padding-bottom: 2rem; border-bottom: 1px solid var(--glass-border);">
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary"
+      style="padding: 0.75rem; border-radius: 50%; width: 45px; height: 45px; justify-content: center;">
+      <i class="fas fa-chevron-left" style="font-size: 0.9rem;"></i>
+    </a>
+    <div>
+      <div
+        style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2rem; color: var(--secondary); margin-bottom: 0.5rem;">
+        Management</div>
+      <h2 class="hero-title" style="font-size: 2.5rem; text-align: left; margin-bottom: 0;">Manage <span
+          class="gradient-text">Products</span></h2>
+    </div>
+  </div>
+
+  <div class="card glass" style="padding: 0; overflow: hidden;">
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+          <tr
+            style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--glass-border); background: rgba(255,255,255,0.01);">
+            <th style="padding: 1.5rem 2rem;">Product / Price</th>
+            <th style="padding: 1.5rem 2rem;">Seller</th>
+            <th style="padding: 1.5rem 2rem;">Type</th>
+            <th style="padding: 1.5rem 2rem;">Status</th>
+            <th style="padding: 1.5rem 2rem; text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody style="font-size: 0.95rem;">
+          {% for p in products %}
+          <tr style="border-bottom: 1px solid var(--glass-border); transition: background 0.3s;"
+            onmouseover="this.style.background='rgba(255,255,255,0.03)'"
+            onmouseout="this.style.background='transparent'">
+            <td style="padding: 1.5rem 2rem;">
+              <div style="font-weight: 800; color: var(--text-main); margin-bottom: 0.25rem;">{{ p.title }}</div>
+              <div style="font-size: 0.85rem; font-family: monospace; color: var(--primary);">₹{{ p.price }}</div>
+            </td>
+            <td style="padding: 1.5rem 2rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <i class="fas fa-store" style="color: var(--text-dim); font-size: 0.8rem;"></i>
+                <span style="color: var(--text-main); font-weight: 600;">{{ p.vendor.username }}</span>
+              </div>
+            </td>
+            <td style="padding: 1.5rem 2rem;">
+              <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim);">
+                {{ p.product_type }}
+              </span>
+            </td>
+            <td style="padding: 1.5rem 2rem;">
+              {% if p.is_approved %}
+              <div
+                style="display: flex; align-items: center; gap: 0.5rem; color: var(--success); font-size: 0.75rem; font-weight: 800;">
+                <div
+                  style="width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success);">
+                </div>
+                LIVE
+              </div>
+              {% elif not p.is_active %}
+              <div
+                style="display: flex; align-items: center; gap: 0.5rem; color: var(--danger); font-size: 0.75rem; font-weight: 800;">
+                <div style="width: 6px; height: 6px; background: var(--danger); border-radius: 50%;"></div>
+                DECLINED
+              </div>
+              {% else %}
+              <div
+                style="display: flex; align-items: center; gap: 0.5rem; color: var(--warning); font-size: 0.75rem; font-weight: 800;">
+                <div style="width: 6px; height: 6px; background: var(--warning); border-radius: 50%;"></div>
+                PENDING
+              </div>
+              {% endif %}
+            </td>
+            <td style="padding: 1.5rem 2rem; text-align: right; display: flex; justify-content: flex-end; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+              <a href="{% url 'product_view_detail' p.id %}" class="btn btn-secondary"
+                style="padding: 0.6rem 1.25rem; font-size: 0.75rem;">
+                PREVIEW <i class="fas fa-eye" style="margin-left: 0.5rem;"></i>
+              </a>
+              {% if not p.is_approved %}
+              <a href="{% url 'approve_product' p.id %}" class="btn btn-primary"
+                style="padding: 0.6rem 1.25rem; font-size: 0.75rem;">
+                APPROVE <i class="fas fa-check-double" style="margin-left: 0.5rem;"></i>
+              </a>
+              <a href="{% url 'decline_product' p.id %}"
+                onclick="return confirm('Decline this product? It will be hidden from the marketplace.')"
+                style="padding: 0.6rem 1.25rem; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.4rem; border-radius: var(--radius-sm); background: rgba(244, 63, 94, 0.12); border: 1px solid rgba(244, 63, 94, 0.3); color: var(--danger); font-weight: 800; text-decoration: none; letter-spacing: 0.05em; transition: background 0.2s;"
+                onmouseover="this.style.background='rgba(244,63,94,0.25)'"
+                onmouseout="this.style.background='rgba(244,63,94,0.12)'">
+                DECLINE <i class="fas fa-xmark"></i>
+              </a>
+              {% else %}
+              <span style="color: var(--success); font-size: 0.75rem; font-weight: 700;">LIVE</span>
+              {% endif %}
+              <!-- Always visible: permanent removal button -->
+              <a href="{% url 'remove_product' p.id %}"
+                onclick="return confirm('PERMANENTLY DELETE this product? This cannot be undone and will remove all related order data.')"
+                style="padding: 0.6rem 0.9rem; font-size: 0.75rem; display: inline-flex; align-items: center; border-radius: var(--radius-sm); background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.2); color: var(--danger); text-decoration: none; opacity: 0.6; transition: opacity 0.2s, background 0.2s;"
+                onmouseover="this.style.opacity='1'; this.style.background='rgba(244,63,94,0.2)'"
+                onmouseout="this.style.opacity='0.6'; this.style.background='rgba(244,63,94,0.08)'"
+                title="Permanently remove product">
+                <i class="fas fa-trash-can"></i>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" style="padding: 6rem 2rem; text-align: center;">
+              <p style="color: var(--text-dim);">No products found.</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

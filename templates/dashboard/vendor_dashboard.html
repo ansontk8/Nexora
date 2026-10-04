@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+
+{% block title %}Sales Portal | NEXORA{% endblock %}
+
+{% block content %}
+<div class="mesh-bg"></div>
+
+<div class="container slide-up">
+  <div
+    style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4rem; padding-bottom: 2rem; border-bottom: 1px solid var(--glass-border);">
+    <div>
+      <div
+        style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2rem; color: var(--secondary); margin-bottom: 1rem;">
+        Seller Panel</div>
+      <h1 class="hero-title" style="font-size: 3.5rem; text-align: left; margin-bottom: 0;">Sales <span
+          class="gradient-text">Stats</span></h1>
+    </div>
+    <div style="display: flex; gap: 1.5rem;">
+      <a href="{% url 'edit_profile' %}" class="btn btn-secondary" style="padding: 1rem 1.5rem;">
+        <i class="fas fa-user-edit"></i> Edit Profile
+      </a>
+      <a href="{% url 'add_product' %}" class="btn btn-primary"
+        style="padding: 1rem 1.5rem; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);">
+        <i class="fas fa-plus"></i> Add Product
+      </a>
+    </div>
+  </div>
+
+  <!-- Performance Grid -->
+  <div
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.5rem; margin-bottom: 4rem;">
+    <div class="card glass" style="position: relative; overflow: hidden; border-left: 4px solid var(--success);">
+      <h4
+        style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem;">
+        Earnings (₹)</h4>
+      <div style="font-size: 3rem; font-weight: 900; letter-spacing: -1px;">₹{{ total_earnings }}</div>
+      <div
+        style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem; color: var(--success); font-size: 0.85rem; font-weight: 600;">
+        <i class="fas fa-check-circle"></i> Verified Earnings
+      </div>
+    </div>
+
+    <div class="card glass" style="position: relative; overflow: hidden; border-left: 4px solid var(--primary);">
+      <h4
+        style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem;">
+        Sales Volume</h4>
+      <div style="font-size: 3rem; font-weight: 900; letter-spacing: -1px;">{{ total_sales }}</div>
+      <div
+        style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem; color: var(--text-dim); font-size: 0.85rem;">
+        <i class="fas fa-shopping-cart"></i> Orders Confirmed
+      </div>
+    </div>
+
+    <div class="card glass" style="position: relative; overflow: hidden; border-left: 4px solid var(--secondary);">
+      <h4
+        style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem;">
+        Active Products</h4>
+      <div style="font-size: 3rem; font-weight: 900; letter-spacing: -1px;">{{ products.count }}</div>
+      <div
+        style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem; color: var(--text-dim); font-size: 0.85rem;">
+        <i class="fas fa-boxes"></i> Digital & Physical
+      </div>
+    </div>
+
+    <!-- Performance Score & Prediction -->
+    <div class="card glass" style="grid-column: span 1; border: 1px solid var(--secondary);">
+      <h4
+        style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">
+        ML Earnings Forecast</h4>
+      <div style="font-size: 2.5rem; font-weight: 900; color: var(--secondary);">
+        ₹{{sales_forecast.total_revenue|floatformat:0}}</div>
+      <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem;">Next 30 Days:
+        ~{{sales_forecast.total_quantity}} Units</div>
+    </div>
+
+    <div class="card glass" style="grid-column: span 1; border: 1px solid var(--accent);">
+      <h4
+        style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">
+        Seller Performance</h4>
+      <div style="font-size: 2.5rem; font-weight: 900; color: var(--text-main);">{{ performance.score }}</div>
+      {% if performance.trust_badge %}
+      <div
+        style="display: inline-block; padding: 0.25rem 0.75rem; background: var(--secondary); color: white; border-radius: 20px; font-size: 0.7rem; font-weight: 800; margin-top: 0.5rem;">
+        <i class="fas fa-certificate"></i> {{ performance.trust_badge }}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Stock Alerts -->
+  {% if low_stock_products %}
+  <div class="card glass"
+    style="border: 2px solid var(--danger); margin-bottom: 3rem; background: rgba(244, 63, 94, 0.05);">
+    <h3 style="color: var(--danger); font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem;">
+      <i class="fas fa-triangle-exclamation"></i> Low Stock Alerts
+    </h3>
+    <ul style="list-style: none; padding: 0;">
+      {% for p in low_stock_products %}
+      <li
+        style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(244, 63, 94, 0.1);">
+        <span style="font-weight: 700;">{{ p.title }}</span>
+        <span style="color: var(--danger); font-weight: 800;">Only {{ p.stock }} left!</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <!-- Inventory Table -->
+  <div class="card glass" style="padding: 0; overflow: hidden;">
+    <div
+      style="padding: 2rem; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
+      <h3 style="font-size: 1.25rem; font-weight: 800;">My Products</h3>
+      <span style="font-size: 0.75rem; color: var(--text-dim); font-weight: 600;">{{ products.count }} items
+        listed</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+          <tr
+            style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--glass-border);">
+            <th style="padding: 1.5rem 2rem;">Product & Stock</th>
+            <th style="padding: 1.5rem 2rem;">Type</th>
+            <th style="padding: 1.5rem 2rem;">Price</th>
+            <th style="padding: 1.5rem 2rem;">Availability</th>
+            <th style="padding: 1.5rem 2rem;">Platform Status</th>
+            <th style="padding: 1.5rem 2rem;">Actions</th>
+          </tr>
+        </thead>
+        <tbody style="font-size: 0.95rem;">
+          {% for product in products %}
+          <tr style="border-bottom: 1px solid var(--glass-border); transition: background 0.3s;"
+            onmouseover="this.style.background='rgba(255,255,255,0.03)'"
+            onmouseout="this.style.background='transparent'">
+            <td style="padding: 1.5rem 2rem;">
+              <div style="font-weight: 800; color: var(--text-main); margin-bottom: 0.25rem;">{{ product.title }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-dim);">
+                {% if product.product_type != 'digital' %}
+                <form action="{% url 'update_stock' product.id %}" method="POST"
+                  style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                  {% csrf_token %}
+                  <div style="font-size: 0.75rem; color: var(--text-dim); margin-right: 0.5rem;">Stock:</div>
+                  <input type="number" name="stock" value="{{ product.stock|default:0 }}" min="0"
+                    style="width: 70px; padding: 0.4rem; background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); border-radius: 6px; font-size: 0.85rem; font-family: monospace;">
+                  <button type="submit" class="btn btn-secondary"
+                    style="padding: 0.4rem 0.8rem; font-size: 0.7rem; border-radius: 6px;">
+                    <i class="fas fa-sync-alt"></i>
+                  </button>
+                </form>
+                {% else %}
+                <div style="color: var(--primary); font-weight: 700; margin-top: 0.5rem;">
+                  <i class="fas fa-infinity"></i> Unlimited Digital
+                </div>
+                {% endif %}
+              </div>
+            </td>
+            <td style="padding: 1.5rem 2rem;">
+              <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--primary);">
+                {{ product.product_type }}
+              </span>
+            </td>
+            <td style="padding: 1.5rem 2rem; font-family: monospace;">
+              <div style="font-weight: 700; color: var(--text-main);">₹{{ product.price }}</div>
+              {% if product.suggested_price and product.suggested_price != product.price|floatformat:2 %}
+              <div style="font-size: 0.7rem; color: var(--secondary); margin-top: 0.5rem; font-weight: 800;">
+                <i class="fas fa-magic"></i> AI Sug: ₹{{ product.suggested_price }}
+              </div>
+              {% endif %}
+            </td>
+            <td style="padding: 1.5rem 2rem;">
+              <a href="{% url 'toggle_availability' product.id %}" style="text-decoration: none;">
+                {% if product.is_active %}
+                <div
+                  style="display: flex; align-items: center; gap: 0.5rem; color: var(--success); font-size: 0.8rem; font-weight: 700;">
+                  <div
+                    style="width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 10px var(--success);">
+                  </div>
+                  AVAILABLE
+                </div>
+                {% else %}
+                <div
+                  style="display: flex; align-items: center; gap: 0.5rem; color: var(--danger); font-size: 0.8rem; font-weight: 700;">
+                  <div style="width: 8px; height: 8px; background: var(--danger); border-radius: 50%;"></div>
+                  UNAVAILABLE
+                </div>
+                {% endif %}
+              </a>
+            </td>
+            <td style="padding: 1.5rem 2rem;">
+              {% if product.is_approved %}
+              <span style="color: var(--success); font-size: 0.75rem; font-weight: 700;"><i class="fas fa-check"></i>
+                Approved</span>
+              {% else %}
+              <span style="color: var(--warning); font-size: 0.75rem; font-weight: 700;"><i class="fas fa-clock"></i>
+                Reviewing</span>
+              {% endif %}
+            </td>
+            <td style="padding: 1.5rem 2rem;">
+              <a href="{% url 'delete_product' product.id %}" 
+                 onclick="return confirm('WARNING: This will permanently delete this product and all associated history. Proceed?')"
+                 style="color: var(--danger); opacity: 0.6; transition: opacity 0.3s;"
+                 onmouseover="this.style.opacity='1'"
+                 onmouseout="this.style.opacity='0.6'">
+                <i class="fas fa-trash-can"></i>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" style="padding: 6rem 2rem; text-align: center;">
+              <div style="font-size: 3rem; color: var(--glass-border); margin-bottom: 1.5rem;">
+                <i class="fas fa-box-open"></i>
+              </div>
+              <p style="color: var(--text-dim); margin-bottom: 2rem;">You haven't listed any products yet.</p>
+              <a href="{% url 'add_product' %}" class="btn btn-secondary" style="font-size: 0.85rem;">Add First
+                Product</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

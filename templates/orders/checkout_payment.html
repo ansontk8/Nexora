@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Secure Payment | NEXORA{% endblock %}
+
+{% block content %}
+<div class="mesh-bg"></div>
+
+<div class="container slide-up">
+    <div style="margin-bottom: 4rem; padding-bottom: 2rem; border-bottom: 1px solid var(--glass-border);">
+        <h1 class="hero-title" style="font-size: 3.5rem; text-align: left; margin-bottom: 0;">Secure <span
+                class="gradient-text">Payment</span></h1>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div style="display: grid; grid-template-columns: 1fr 380px; gap: 3rem;">
+            <div>
+                {% if has_physical %}
+                <!-- Delivery date only for physical items -->
+                <div class="card glass" style="margin-bottom: 3rem; padding: 2rem; border: 1px solid var(--primary);">
+                    <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-calendar-day"></i> Select Delivery Date</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 1.5rem;">Tell us when you want your items delivered. Minimum 2 days for processing.</p>
+                    <input type="date" name="expected_delivery_date" id="delivery_date" required
+                        style="width: 100%; padding: 1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 8px; color: white; font-family: inherit; font-size: 1rem;">
+                    <script>
+                        const dt = new Date();
+                        dt.setDate(dt.getDate() + 2);
+                        document.getElementById('delivery_date').min = dt.toISOString().split('T')[0];
+                        document.getElementById('delivery_date').value = dt.toISOString().split('T')[0];
+                    </script>
+                </div>
+                {% else %}
+                <!-- Digital-only order info -->
+                <div class="card glass" style="margin-bottom: 3rem; padding: 2rem; border: 1px solid var(--success); background: rgba(16, 185, 129, 0.05);">
+                    <h3 style="margin-bottom: 1rem; color: var(--success);"><i class="fas fa-bolt-lightning"></i> Instant Digital Delivery</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-dim); margin: 0;">Your digital items will be available for download immediately after payment. No shipping required.</p>
+                </div>
+                {% endif %}
+
+                <h3 style="margin-bottom: 2rem;">Select Payment Method</h3>
+                <div style="display: grid; gap: 1.5rem; margin-bottom: 4rem;">
+                    <label class="card glass"
+                        style="cursor: pointer; display: flex; align-items: center; gap: 2rem; padding: 2.5rem; border: 1px solid var(--glass-border); transition: 0.3s;"
+                        onclick="this.style.borderColor='var(--primary)'">
+                        <input type="radio" name="payment_method" value="Credit/Debit Card" checked style="width: 24px; height: 24px;">
+                        <i class="fas fa-credit-card" style="font-size: 2.5rem; color: var(--primary);"></i>
+                        <div>
+                            <div style="font-weight: 800; font-size: 1.25rem;">Credit / Debit Card</div>
+                            <div style="color: var(--text-dim); font-size: 0.9rem;">Powered by NexoraPay Stripe Integration</div>
+                        </div>
+                    </label>
+
+                    <label class="card glass"
+                        style="cursor: pointer; display: flex; align-items: center; gap: 2rem; padding: 2.5rem; border: 1px solid var(--glass-border); transition: 0.3s;"
+                        onclick="this.style.borderColor='var(--secondary)'">
+                        <input type="radio" name="payment_method" value="UPI" style="width: 24px; height: 24px;">
+                        <i class="fas fa-mobile-screen-button" style="font-size: 2.5rem; color: var(--secondary);"></i>
+                        <div>
+                            <div style="font-weight: 800; font-size: 1.25rem;">UPI (GPay / PhonePe / Paytm)</div>
+                            <div style="color: var(--text-dim); font-size: 0.9rem;">Instant mobile payment via QR</div>
+                        </div>
+                    </label>
+
+                    {% if has_physical %}
+                    <!-- Cash on Delivery only makes sense for physical items -->
+                    <label class="card glass"
+                        style="cursor: pointer; display: flex; align-items: center; gap: 2rem; padding: 2.5rem; border: 1px solid var(--glass-border); transition: 0.3s;"
+                        onclick="this.style.borderColor='var(--success)'">
+                        <input type="radio" name="payment_method" value="Cash on Delivery" style="width: 24px; height: 24px;">
+                        <i class="fas fa-money-bill-transfer" style="font-size: 2.5rem; color: var(--success);"></i>
+                        <div>
+                            <div style="font-weight: 800; font-size: 1.25rem;">Cash on Delivery</div>
+                            <div style="color: var(--text-dim); font-size: 0.9rem;">Pay when you receive your physical items</div>
+                        </div>
+                    </label>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card glass"
+                style="height: fit-content; position: sticky; top: 2rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));">
+                <h3 style="margin-bottom: 2rem;">Order Review</h3>
+                <div style="color: var(--text-dim); font-size: 0.9rem; line-height: 1.8; margin-bottom: 2rem;">
+                    {% if has_physical %}
+                    Physical items will be shipped after payment confirmation.
+                    {% else %}
+                    Your digital items will be available instantly after payment.
+                    {% endif %}
+                    <br><br>
+                    <i class="fas fa-check-circle" style="color: var(--success);"></i> AI Verified Marketplace<br>
+                    <i class="fas fa-check-circle" style="color: var(--success);"></i> Secure Transaction<br>
+                    <i class="fas fa-check-circle" style="color: var(--success);"></i> 14-day Return Policy
+                </div>
+
+                <div style="padding-top: 2rem; border-top: 1px solid var(--glass-border); margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: var(--text-dim);">Cart Total</span>
+                        <span style="font-weight: 700;">₹{{ cart.get_total }}</span>
+                    </div>
+                    {% if has_physical %}
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--secondary);">
+                        <span style="font-weight: 700;"><i class="fas fa-truck-fast"></i> ShipRocket Delivery</span>
+                        <span style="font-weight: 800;">+ ₹{{ shipping_cost }}</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1.5rem; padding-left: 1.5rem;">
+                        <i class="fas fa-calendar-alt"></i> Est. Arrival:
+                        <span style="font-weight: 700; color: var(--text-main);">{{ est_delivery_date|date:"D, d M" }}</span>
+                    </div>
+                    {% else %}
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; color: var(--success);">
+                        <span style="font-weight: 700;"><i class="fas fa-bolt-lightning"></i> Instant Access</span>
+                        <span style="font-weight: 800;">FREE</span>
+                    </div>
+                    {% endif %}
+                    <div style="display: flex; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+                        <span style="font-weight: 800; font-size: 1.1rem;">Grand Total</span>
+                        <h2 style="font-weight: 900; color: var(--primary); margin: 0;">₹{{ total }}</h2>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; justify-content: center; padding: 1.25rem; font-size: 1.1rem; font-weight: 900;">
+                    Complete Purchase <i class="fas fa-lock"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

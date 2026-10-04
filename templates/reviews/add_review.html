@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Leave Review | NEXORA{% endblock %}
+
+{% block content %}
+<div class="mesh-bg"></div>
+
+<div class="container slide-up">
+    <div style="max-width: 600px; margin: 0 auto;">
+        <h1 class="hero-title" style="font-size: 2.5rem; text-align: left; margin-bottom: 2rem;">Share your <span
+                class="gradient-text">Experience</span></h1>
+
+        <div class="card glass" style="margin-bottom: 2rem; display: flex; gap: 1.5rem; align-items: center;">
+            <div
+                style="width: 60px; height: 60px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-box" style="font-size: 1.2rem; color: var(--primary);"></i>
+            </div>
+            <div>
+                <h3 style="margin: 0; font-size: 1.1rem;">{{ product.title }}</h3>
+                <p style="margin: 0; color: var(--text-dim); font-size: 0.85rem;">Verified Purchase</p>
+            </div>
+        </div>
+
+        <form method="POST" class="card glass" style="padding: 2.5rem;">
+            {% csrf_token %}
+
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label style="display: block; margin-bottom: 1rem; font-weight: 700;">Rate your product</label>
+                <div style="display: flex; gap: 1rem;">
+                    {% for i in "12345" %}
+                    <label style="cursor: pointer;">
+                        <input type="radio" name="rating" value="{{ forloop.counter }}" style="display: none;" required>
+                        <i class="fas fa-star star-rating" data-val="{{ forloop.counter }}"
+                            style="font-size: 1.5rem; color: rgba(255,255,255,0.1); transition: 0.3s;"></i>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 2.5rem;">
+                <label style="display: block; margin-bottom: 1rem; font-weight: 700;">Your Review</label>
+                <textarea name="text" class="glass" placeholder="Tell us what you liked or disliked..." required
+                    style="width: 100%; padding: 1.2rem; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: white; border-radius: 12px; min-height: 150px; font-family: inherit; font-size: 0.95rem;"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary"
+                style="width: 100%; justify-content: center; padding: 1.25rem;">
+                Submit Review <i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const stars = document.querySelectorAll('.star-rating');
+    const inputs = document.querySelectorAll('input[name="rating"]');
+
+    stars.forEach((star, idx) => {
+        star.addEventListener('click', () => {
+            resetStars();
+            for (let i = 0; i <= idx; i++) {
+                stars[i].style.color = '#fbbf24';
+                stars[i].style.textShadow = '0 0 10px rgba(251, 191, 36, 0.4)';
+            }
+            inputs[idx].checked = true;
+        });
+
+        star.addEventListener('mouseover', () => {
+            if (![...inputs].some(i => i.checked)) {
+                for (let i = 0; i <= idx; i++) {
+                    stars[i].style.color = 'rgba(251, 191, 36, 0.5)';
+                }
+            }
+        });
+
+        star.addEventListener('mouseout', () => {
+            if (![...inputs].some(i => i.checked)) {
+                resetStars();
+            }
+        });
+    });
+
+    function resetStars() {
+        stars.forEach(s => {
+            s.style.color = 'rgba(255,255,255,0.1)';
+            s.style.textShadow = 'none';
+        });
+    }
+</script>
+{% endblock %}
